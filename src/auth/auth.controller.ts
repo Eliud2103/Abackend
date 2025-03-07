@@ -24,14 +24,12 @@ export class AuthController {
   @Get('profile')
   @UseGuards(AuthGuard('jwt'))  // Asegúrate de que el JWT Guard esté activado
   async getProfile(@Req() req: IRequest) {
+    console.log('User data in backend:', req.user); // Verifica los datos que llegan al backend
     return {
-      name: req.user.name,
+      fullName: req.user.fullName,
       email: req.user.email,
       userId: req.user.userId,
     };
-    const { name, email, userId } = req.user;  // Aquí accedes a `name`, `email` y `userId`
-    return { name, email, userId };
-    
-    return req.user;  // El perfil del usuario está disponible en req.user gracias al guard
   }
+  
 }

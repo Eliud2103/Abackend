@@ -11,7 +11,7 @@ export class AuthService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async register(registerDto: RegisterDto): Promise<User> {
-    const { email, password } = registerDto;
+    const {  email, password } = registerDto;
 
     // Verificar si el usuario ya existe
     const existingUser = await this.userModel.findOne({ email });
@@ -42,7 +42,7 @@ export class AuthService {
     }
 
     // Crear un JWT Token
-    const payload = {  name: user.fullName, email: user.email, sub: user._id };  // Los datos que quieras incluir en el payload
+    const payload = {  fullName: user.fullName, email: user.email, sub: user._id };  // Los datos que quieras incluir en el payload
     const accessToken = jwt.sign(payload, 'secreto', { expiresIn: '1h' });  // La clave secreta y el tiempo de expiración
 
     return { accessToken };
