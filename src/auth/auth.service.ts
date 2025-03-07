@@ -28,9 +28,9 @@ export class AuthService {
   }
 
   // Método para iniciar sesión
-  async login(email: string, password: string): Promise<{ accessToken: string }> {
+  async login(email: string,password: string): Promise<{ accessToken: string }> {
     // Verificar si el usuario existe
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({ email});
     if (!user) {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
@@ -42,13 +42,14 @@ export class AuthService {
     }
 
     // Crear un JWT Token
-    const payload = { email: user.email, sub: user._id };  // Los datos que quieras incluir en el payload
-    const accessToken = jwt.sign(payload, 'secretKey', { expiresIn: '1h' });  // La clave secreta y el tiempo de expiración
+    const payload = {  name: user.fullName, email: user.email, sub: user._id };  // Los datos que quieras incluir en el payload
+    const accessToken = jwt.sign(payload, 'secreto', { expiresIn: '1h' });  // La clave secreta y el tiempo de expiración
 
     return { accessToken };
   }
-  // auth.service.ts (Backend)
-async getUserProfile(email: string): Promise<User> {
-  return this.userModel.findOne({ email });
-}
+
+  // No es necesario este método aquí. El perfil se obtiene usando el JWT en el controller.
+  // async getUserProfile(email: string): Promise<User> {
+  //   return this.userModel.findOne({ email });
+  // }
 }
