@@ -2,7 +2,7 @@ import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/co
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';  // Importamos jsonwebtoken
+import * as jwt from 'jsonwebtoken'; // Importamos jsonwebtoken
 import { User, UserDocument } from './schemas/user.schema';
 import { RegisterDto } from './dto/register.dto';
 
@@ -10,8 +10,9 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
+  // Registro de usuario
   async register(registerDto: RegisterDto): Promise<User> {
-    const {  email, password } = registerDto;
+    const { email, password } = registerDto;
 
     // Verificar si el usuario ya existe
     const existingUser = await this.userModel.findOne({ email });
@@ -27,29 +28,46 @@ export class AuthService {
     return user.save();
   }
 
-  // Método para iniciar sesión
-  async login(email: string,password: string): Promise<{ accessToken: string }> {
-    // Verificar si el usuario existe
-    const user = await this.userModel.findOne({ email});
+  // Iniciar sesión
+  async login(email: string, password: string): Promise<{ accessToken: string }> {
+    const user = await this.userModel.findOne({ email });
     if (!user) {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    // Comparar la contraseña con la almacenada
+    // Comparar la contraseña
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    // Crear un JWT Token
-    const payload = {  fullName: user.fullName, email: user.email, sub: user._id };  // Los datos que quieras incluir en el payload
-    const accessToken = jwt.sign(payload, 'secreto', { expiresIn: '1h' });  // La clave secreta y el tiempo de expiración
+    // Crear el token JWT
+    const payload = { fullName: user.fullName, email: user.email, sub: user._id };
+    const accessToken = jwt.sign(payload, 'secreto', { expiresIn: '1h' });
 
     return { accessToken };
   }
 
-  // No es necesario este método aquí. El perfil se obtiene usando el JWT en el controller.
-  // async getUserProfile(email: string): Promise<User> {
-  //   return this.userModel.findOne({ email });
-  // }
+  // Método para actualizar la contraseña
+  async updatePassword(userId: string, currentPassword: string, newPassword: string): Promise<{ message: string }> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+        throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    // Verificar contraseña actual
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+        throw new UnauthorizedException('Contraseña actual incorrecta');
+    }
+
+    // Hashear la nueva contraseña y guardar
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.passwordChangedAt = new Date();
+    await user.save(); // Asegurar que se guarde correctamente
+
+    return { message: 'Contraseña actualizada correctamente' };
+}
+
+ 
 }
