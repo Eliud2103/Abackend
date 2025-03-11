@@ -24,6 +24,9 @@ export class User {
   password: string;
   @Prop({ default: Date.now })
   passwordChangedAt: Date; 
+
+  @Prop({ required: true, enum: ['usuario', 'hospital', 'clinica', 'farmacia', 'laboratorio', 'doctor'] })
+  role: string; // Define qué tipo de usuario es
 }
 
 // Ahora definimos el schema después de la declaración de la clase User

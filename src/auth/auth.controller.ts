@@ -7,6 +7,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { IRequest } from './request.interfaces';
 import { log } from 'console';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { RegisterHospitalDto } from './dto/register-hospital.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -45,5 +46,21 @@ async changePassword(
   return this.authService.updatePassword(userId, body.contrasena_actual, body.nueva_contrasena);
 }
 
+
+
+
+//////////////////////////7Hospital//////////////////////////////////777777
+@Post('hos-register')
+  async hosRegister(@Body() hospitalDto: RegisterHospitalDto) {
+    try {
+      const newHospital = await this.authService.registerHospital(hospitalDto);
+      return newHospital;
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException('El correo electrónico ya está en uso.');
+      }
+      throw error;
+    }
+  }
   
 }
