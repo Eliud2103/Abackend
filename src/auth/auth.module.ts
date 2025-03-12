@@ -8,12 +8,14 @@ import { JwtStrategy } from './jwt-strategy';
 import { AuthController } from './auth.controller';
 import { EntidadModule } from '../auth/entidad.module';
 import { HospitalModule } from './hospital.module';
+import { FarmaciaModule } from './farmacia.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     EntidadModule, // Asegura que el EntidadModel está disponible
     HospitalModule,
+    FarmaciaModule, // Importa el módulo de Farmacia
     PassportModule,
     JwtModule.register({
       secret: 'secreto', // Usa variables de entorno en producción

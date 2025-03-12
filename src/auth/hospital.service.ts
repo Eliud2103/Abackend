@@ -16,7 +16,12 @@ export class HospitalService {
   async registerHospital(hospitalDto: RegisterHospitalDto): Promise<Hospital> {
     try {
       logger.log('Registrando hospital con los siguientes datos:', hospitalDto);
-      
+       // Verificar si el correo ya existe
+    const existingHospital = await this.hospitalModel.findOne({ email_hospital: hospitalDto.email_hospital }).exec();
+    if (existingHospital) {
+      throw new Error('El correo ya está en uso');
+    }
+
 
       // Creamos el objeto responsable directamente como parte del hospital
       const responsable = {

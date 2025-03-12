@@ -5,19 +5,19 @@ export type EntidadDocument = Entidad & Document;
 
 @Schema()
 export class Entidad {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true }) 
+  @Prop({ type: Types.ObjectId, ref: 'User',  }) 
   userId: Types.ObjectId; // Relación con el usuario responsable
 
-  @Prop({ required: true })
+  @Prop({  })
   name: string; // Nombre de la entidad (Hospital, Clínica, etc.)
 
-  @Prop({ required: true })
+  @Prop({  })
   type: string; // 'hospital', 'clinica', 'farmacia', 'laboratorio', 'doctor'
 
-  @Prop({ required: true })
+  @Prop({  })
   licenseNumber: string;
 
-  @Prop({ required: true })
+  @Prop({  }) 
   address: string;
 
   @Prop()

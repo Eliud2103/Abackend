@@ -8,6 +8,7 @@ import { IRequest } from './request.interfaces';
 import { log } from 'console';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RegisterHospitalDto } from './dto/register-hospital.dto';
+import { RegisterFarmaciaDto } from './dto/register-farmacia.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -62,5 +63,18 @@ async changePassword(
       throw error;
     }
   }
-  
+
+  //////////////////////////Farmacia////////////////////////////////////////////
+  @Post('far-register')  // Ruta para registrar farmacia
+  async farRegister(@Body() farmaciaDto: RegisterFarmaciaDto) {
+    try {
+      const newFarmacia = await this.authService.registerFarmacia(farmaciaDto);
+      return newFarmacia;
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException('El correo electrónico ya está en uso.');
+      }
+      throw error;
+    }
+  }
 }
