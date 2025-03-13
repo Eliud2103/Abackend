@@ -13,12 +13,16 @@ export class FarmaciaService {
     @InjectModel(Farmacia.name) private readonly farmaciaModel: Model<Farmacia>
   ) {}
 
+  async findFarmaciaByEmail(email: string): Promise<Farmacia | null> {
+    return this.farmaciaModel.findOne({ 'responsable.email_responsable': email }).exec();
+  }
+
   async registerFarmacia(farmaciaDto: RegisterFarmaciaDto): Promise<Farmacia> {
     try {
       logger.log('Registrando farmacia con los siguientes datos:', farmaciaDto);
 
-      // Verificar si el correo ya existe
-      const existingFarmacia = await this.farmaciaModel.findOne({ email: farmaciaDto.email_farmacia }).exec();
+      // Verificar si el correo de la farmacia ya existe
+      const existingFarmacia = await this.farmaciaModel.findOne({ email_farmacia: farmaciaDto.email_farmacia }).exec();
       if (existingFarmacia) {
         throw new Error('El correo ya está en uso');
       }

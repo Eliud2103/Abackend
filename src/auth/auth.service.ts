@@ -40,23 +40,35 @@ export class AuthService {
 
   // Iniciar sesión
   async login(email: string, password: string): Promise<{ accessToken: string; role: string; fullName: string; email: string }> {
-    // Buscar primero en usuarios
+    // Buscar primero en la colección de usuarios normales
     let user = await this.userModel.findOne({ email });
   
     if (!user) {
-      // Si no lo encuentra, buscar en hospitales por el email del responsable
+      // Si no lo encuentra en usuarios, buscar en hospitales
       const hospital = await this.hospitalService.findHospitalByEmail(email);
-      if (!hospital) {
-        throw new UnauthorizedException('Credenciales incorrectas');
+      if (hospital) {
+        user = new this.userModel({
+          email: hospital.responsable.email_responsable,
+          fullName: `${hospital.responsable.nombre_responsable} ${hospital.responsable.apellido_paterno_responsable}`,
+          role: 'hospital',
+          password: hospital.responsable.password,
+        });
+      } else {
+        // Si tampoco lo encuentra en hospitales, buscar en farmacias
+        const farmacia = await this.farmaciaService.findFarmaciaByEmail(email);
+        if (farmacia) {
+          user = new this.userModel({
+            email: farmacia.responsable.email_responsable,
+            fullName: `${farmacia.responsable.nombre_responsable} ${farmacia.responsable.apellido_paterno_responsable}`,
+            role: 'farmacia',
+            password: farmacia.responsable.password,
+          });
+        }
       }
+    }
   
-      // Simulamos un usuario con los datos del hospital
-      user = new this.userModel({
-        email: hospital.responsable.email_responsable,
-        fullName: `${hospital.responsable.nombre_responsable} ${hospital.responsable.apellido_paterno_responsable}`,
-        role: 'hospital',
-        password: hospital.responsable.password,
-      });
+    if (!user) {
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
   
     // Verificar la contraseña
