@@ -49,6 +49,8 @@ export class Farmacia {
     telefono_responsable: string;
     password: string;
   };
+  /* @Prop({ required: true, default: 'farmacia' })
+  role: string;*/
 }
 
 export const FarmaciaSchema = SchemaFactory.createForClass(Farmacia);

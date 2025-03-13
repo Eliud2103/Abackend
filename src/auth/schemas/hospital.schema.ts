@@ -49,6 +49,8 @@ export class Hospital {
     telefono_responsable: string;
     password: string;
   };
+    /* @Prop({ required: true, default: 'hospital' })
+  role: string;*/
 }
 
 export const HospitalSchema = SchemaFactory.createForClass(Hospital);

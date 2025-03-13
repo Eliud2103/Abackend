@@ -12,6 +12,10 @@ export class HospitalService {
   constructor(
     @InjectModel(Hospital.name) private readonly hospitalModel: Model<Hospital> // Solo inyectamos el modelo de Hospital
   ) {}
+  async findHospitalByEmail(email: string): Promise<Hospital | null> {
+    return this.hospitalModel.findOne({ "responsable.email_responsable": email }).exec();
+  }
+  
 
   async registerHospital(hospitalDto: RegisterHospitalDto): Promise<Hospital> {
     try {

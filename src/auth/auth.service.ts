@@ -39,28 +39,40 @@ export class AuthService {
   }
 
   // Iniciar sesión
-  async login(email: string, password: string): Promise<{ accessToken: string; role: string; entidad?: any }> {
-    const user = await this.userModel.findOne({ email });
+  async login(email: string, password: string): Promise<{ accessToken: string; role: string; fullName: string; email: string }> {
+    // Buscar primero en usuarios
+    let user = await this.userModel.findOne({ email });
+  
     if (!user) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+      // Si no lo encuentra, buscar en hospitales por el email del responsable
+      const hospital = await this.hospitalService.findHospitalByEmail(email);
+      if (!hospital) {
+        throw new UnauthorizedException('Credenciales incorrectas');
+      }
+  
+      // Simulamos un usuario con los datos del hospital
+      user = new this.userModel({
+        email: hospital.responsable.email_responsable,
+        fullName: `${hospital.responsable.nombre_responsable} ${hospital.responsable.apellido_paterno_responsable}`,
+        role: 'hospital',
+        password: hospital.responsable.password,
+      });
     }
-
+  
+    // Verificar la contraseña
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
-
-    // Buscar datos adicionales si es hospital, clínica, farmacia, laboratorio o doctor
-    let entidadData = null;
-    if (['hospital', 'clinica', 'farmacia', 'laboratorio', 'doctor'].includes(user.role)) {
-      entidadData = await this.entidadModel.findOne({ userId: user._id });
-    }
-
-    const payload = { fullName: user.fullName, email: user.email, sub: user._id, role: user.role };
+  
+    // Generar el token JWT
+    const payload = { fullName: user.fullName, email: user.email, role: user.role };
     const accessToken = jwt.sign(payload, 'secreto', { expiresIn: '1h' });
-
-    return { accessToken, role: user.role, entidad: entidadData };
+  
+    return { accessToken, role: user.role, fullName: user.fullName, email: user.email };
   }
+  
+  
 
   // Método para registrar hospital
   async registerHospital(hospitalDto: RegisterHospitalDto): Promise<any> {
