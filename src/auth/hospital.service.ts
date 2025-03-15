@@ -55,7 +55,12 @@ export class HospitalService {
   }
 
   private async hashPassword(password: string): Promise<string> {
+    if (!password) {
+      throw new Error('La contraseña no puede estar vacía');
+    }
+  
     const salt = await bcrypt.genSalt();
     return bcrypt.hash(password, salt);
   }
+  
 }

@@ -1,8 +1,8 @@
 import { IsString, IsEmail, IsOptional, IsMongoId } from 'class-validator';
 
 export class RegisterHospitalDto {
- // @IsMongoId()
-  //userId: string; // Relación con el usuario responsable
+  // @IsMongoId()
+  // userId: string; // Relación con el usuario responsable
 
   @IsString()
   nombre_hospital: string; // Nombre del hospital
@@ -45,4 +45,8 @@ export class RegisterHospitalDto {
   @IsOptional()
   @IsString()
   descripcion?: string;
+
+  @IsString()
+  @IsOptional()
+  img?: string;  // URL de la imagen del hospital
 }

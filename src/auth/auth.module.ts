@@ -9,14 +9,17 @@ import { AuthController } from './auth.controller';
 import { EntidadModule } from '../auth/entidad.module';
 import { HospitalModule } from './hospital.module';
 import { FarmaciaModule } from './farmacia.module';
+import {GridFSModule} from '../auth/gridfs.module'
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     EntidadModule, // Asegura que el EntidadModel está disponible
     HospitalModule,
+    GridFSModule,
     FarmaciaModule, // Importa el módulo de Farmacia
     PassportModule,
+    
     JwtModule.register({
       secret: 'secreto', // Usa variables de entorno en producción
       signOptions: { expiresIn: '1h' },

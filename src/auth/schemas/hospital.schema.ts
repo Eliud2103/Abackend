@@ -49,8 +49,10 @@ export class Hospital {
     telefono_responsable: string;
     password: string;
   };
-    /* @Prop({ required: true, default: 'hospital' })
-  role: string;*/
+
+  // 📌 Campo para la URL de la imagen
+  @Prop({ required: true })
+  img: string; // Aquí se guardará la URL de la imagen del hospital
 }
 
 export const HospitalSchema = SchemaFactory.createForClass(Hospital);
