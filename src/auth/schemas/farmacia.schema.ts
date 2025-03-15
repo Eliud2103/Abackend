@@ -51,6 +51,11 @@ export class Farmacia {
   };
   /* @Prop({ required: true, default: 'farmacia' })
   role: string;*/
+    // 📌 Campo para la URL de la imagen
+    @Prop({ required: true })
+    img: string; // Aquí se guardará la URL de la imagen del hospital
+  
+  
 }
 
 export const FarmaciaSchema = SchemaFactory.createForClass(Farmacia);
