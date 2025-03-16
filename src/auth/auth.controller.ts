@@ -94,4 +94,6 @@ export class AuthController {
     return { imageUrl: imageUrl };  // Asegúrate de que solo sea un string
   }
   
+
+  
 }

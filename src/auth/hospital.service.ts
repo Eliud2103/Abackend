@@ -62,5 +62,11 @@ export class HospitalService {
     const salt = await bcrypt.genSalt();
     return bcrypt.hash(password, salt);
   }
+  async getHospitales() {
+    return await this.hospitalModel.find().exec();
+  }
+  async findAll(): Promise<Hospital[]> {
+    return this.hospitalModel.find().exec();
+  }
   
 }
