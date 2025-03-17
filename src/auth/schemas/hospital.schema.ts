@@ -31,6 +31,12 @@ export class Hospital {
   
   @Prop({ required: true })
   img: string; 
+  @Prop({ required: true })
+  mision: string; 
+  @Prop({ required: true })
+  vision: string; 
+  @Prop({ default: 0 })  // 🟡 Se agrega el campo con un valor por defecto de 0
+  rating: number;
 
   // 📌 Definimos "responsable" directamente dentro del esquema de Hospital
   @Prop({
@@ -53,8 +59,18 @@ export class Hospital {
     password: string;
   };
 
-  // 📌 Campo para la URL de la imagen
-  // Aquí se guardará la URL de la imagen del hospital
+  // 📝 Campo para los comentarios de los usuarios
+  @Prop({
+    type: [
+      {
+        usuario: { type: String, required: true },  // Nombre del usuario que publicó el comentario
+        texto: { type: String, required: true },    // Texto del comentario
+        fecha: { type: Date, default: Date.now }    // Fecha en la que se publicó el comentario
+      }
+    ],
+    default: [],
+  })
+  comentarios: { usuario: string, texto: string, fecha: Date }[]; // Array de comentarios
 }
 
 export const HospitalSchema = SchemaFactory.createForClass(Hospital);

@@ -75,4 +75,18 @@ export class HospitalService {
   async findOne(id: string): Promise<Hospital> {
     return this.hospitalModel.findById(id).exec();
   }
+  async updateRating(id: string, rating: number) {
+    return this.hospitalModel.findByIdAndUpdate(id, { rating }, { new: true });
+  }
+
+   // Método para agregar un comentario a un hospital
+   async addComment(id: string, comentario: string, usuario: string): Promise<Hospital> {
+    // Aquí estamos usando el operador $push para agregar un comentario al array de comentarios
+    return this.hospitalModel.findByIdAndUpdate(
+      id,
+      { $push: { comentarios: { usuario, texto: comentario } } },
+      { new: true }
+    ).exec();
+  }
+  
 }

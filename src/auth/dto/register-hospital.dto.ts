@@ -49,4 +49,10 @@ export class RegisterHospitalDto {
   @IsString()
   @IsOptional()
   img?: string;  // URL de la imagen del hospital
+  @IsString()
+  @IsOptional()
+  mision?: string;  // URL de la imagen del hospital
+  @IsString()
+  @IsOptional()
+  vision?: string;  // URL de la imagen del hospital
 }
