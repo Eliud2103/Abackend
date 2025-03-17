@@ -1,48 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import * as mongoose from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Image } from './schemas/image.schema';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 import { GridFSBucket } from 'mongodb';
+import { Readable } from 'stream';
+import { ObjectId } from 'mongodb';  // ✅ Importa ObjectId
 
 @Injectable()
 export class ImageService {
   private bucket: GridFSBucket;
 
-  constructor(@InjectModel(Image.name) private imageModel: Model<Image>) {
-    // Conexión a MongoDB y configuración de GridFS
-    mongoose.connect('mongodb+srv://kevingrst:IY5qcYxMVtVAdiha@ateneadbcluster.51nyt.mongodb.net/atenea?retryWrites=true&w=majority&appName=ateneaDBcluster', {
-      dbName: 'atenea',  // Especificar el nombre de la base de datos
+  constructor(@InjectConnection() private readonly connection: Connection) {
+    this.bucket = new GridFSBucket(this.connection.db, { bucketName: 'images' }); // 💾 Bucket para almacenar imágenes
+  }
+
+  async uploadImage(buffer: Buffer, filename: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const readableStream = new Readable();
+      readableStream.push(buffer);
+      readableStream.push(null);
+
+      const uploadStream = this.bucket.openUploadStream(filename);
+      readableStream.pipe(uploadStream);
+
+      uploadStream.on('finish', () => {
+        console.log('✅ Imagen guardada con ID:', uploadStream.id);
+        resolve(uploadStream); // Retorna el objeto con el `_id`
+      });
+
+      uploadStream.on('error', (error) => {
+        console.error('❌ Error al subir imagen:', error);
+        reject(error);
+      });
     });
-
-    const conn = mongoose.connection;
-    conn.once('open', () => {
-      // Se crea un bucket de GridFS para almacenar las imágenes
-      this.bucket = new GridFSBucket(conn.db, { bucketName: 'images' });
-    });
   }
 
-  // Método para obtener el bucket de GridFS
-  getBucket() {
-    return this.bucket;
-  }
-
-  // Método para guardar la imagen en la base de datos de MongoDB
-  async saveImage(filename: string, path: string): Promise<Image> {
-    const newImage = new this.imageModel({ filename, path });
-    return newImage.save(); // Guarda los metadatos en la colección "Image"
-  }
-
-  // Método para cargar una imagen al bucket GridFS
-  async uploadImage(fileBuffer: Buffer, filename: string) {
-    const uploadStream = this.bucket.openUploadStream(filename);
-    uploadStream.end(fileBuffer);
-    return uploadStream;
-  }
-
-  // Método para obtener una imagen del bucket GridFS
-  async getImage(filename: string) {
-    const downloadStream = this.bucket.openDownloadStreamByName(filename);
-    return downloadStream;
+  getImageById(id: string) {
+    try {
+      return this.bucket.openDownloadStream(new ObjectId(id)); // ✅ Usa ObjectId directamente
+    } catch (error) {
+      console.error('❌ Error al obtener imagen:', error);
+      return null;
+    }
   }
 }

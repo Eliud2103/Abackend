@@ -28,6 +28,9 @@ export class Hospital {
 
   @Prop()
   descripcion?: string;
+  
+  @Prop({ required: true })
+  img: string; 
 
   // 📌 Definimos "responsable" directamente dentro del esquema de Hospital
   @Prop({
@@ -51,8 +54,7 @@ export class Hospital {
   };
 
   // 📌 Campo para la URL de la imagen
-  @Prop({ required: true })
-  img: string; // Aquí se guardará la URL de la imagen del hospital
+  // Aquí se guardará la URL de la imagen del hospital
 }
 
 export const HospitalSchema = SchemaFactory.createForClass(Hospital);

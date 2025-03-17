@@ -3,29 +3,29 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageService } from './image.service';
 import { Response } from 'express';
 import * as multer from 'multer';
-import * as path from 'path';
 
-@Controller('images')
+@Controller('images') // 👈 Asegúrate de que el prefijo sea 'images'
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
-  // Endpoint para subir la imagen
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', { storage: multer.memoryStorage() })) // Usamos memoria para almacenar la imagen
-  async uploadImage(@UploadedFile() file: Express.Multer.File) {
-    // Guardamos la imagen en el bucket de GridFS
-    await this.imageService.uploadImage(file.buffer, file.originalname);
-
-    // Opcional: Guardar los metadatos de la imagen en la base de datos si lo deseas
-    await this.imageService.saveImage(file.originalname, file.path);
-
-    return { fileUrl: `http://localhost:3000/images/${file.originalname}` }; // Retorna la URL de la imagen
+  @UseInterceptors(FileInterceptor('file', { storage: multer.memoryStorage() }))
+  async uploadImage(@UploadedFile() file: Express.Multer.File, @Res() res: Response) {
+    try {
+      const uploadedFile = await this.imageService.uploadImage(file.buffer, file.originalname);
+      return res.json({ fileUrl: `http://localhost:3000/images/file/${uploadedFile.id}` }); // 🔥 Ajustar la URL correcta
+    } catch (error) {
+      return res.status(500).send('Error uploading image');
+    }
   }
 
-  // Endpoint para obtener la imagen por su nombre
-  @Get(':filename')
-  async getImage(@Param('filename') filename: string, @Res() res: Response) {
-    const downloadStream = await this.imageService.getImage(filename);
-    downloadStream.pipe(res); // Enviar la imagen como respuesta
+  @Get('file/:id')
+  async getImage(@Param('id') id: string, @Res() res: Response) {
+    const downloadStream = await this.imageService.getImageById(id);
+    if (!downloadStream) {
+      return res.status(404).send('Image not found');
+    }
+    res.setHeader('Content-Type', 'image/png'); // Ajusta según el tipo de imagen
+    downloadStream.pipe(res); // 🔥 Manda la imagen al frontend
   }
 }

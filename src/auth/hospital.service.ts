@@ -68,5 +68,11 @@ export class HospitalService {
   async findAll(): Promise<Hospital[]> {
     return this.hospitalModel.find().exec();
   }
-  
+  // Método para obtener un hospital por ID
+  async findOneById(id: string): Promise<Hospital> {
+    return this.hospitalModel.findById(id).exec();
+  }
+  async findOne(id: string): Promise<Hospital> {
+    return this.hospitalModel.findById(id).exec();
+  }
 }
