@@ -58,4 +58,30 @@ export class FarmaciaService {
     const salt = await bcrypt.genSalt();
     return bcrypt.hash(password, salt);
   }
+  async findAll(): Promise<Farmacia[]> {
+      return this.farmaciaModel.find().exec();
+    }
+
+     // Método para obtener un hospital por ID
+      async findOneById(id: string): Promise<Farmacia> {
+        return this.farmaciaModel.findById(id).exec();
+      }
+      async findOne(id: string): Promise<Farmacia> {
+        return this.farmaciaModel.findById(id).exec();
+      }
+      async updateRating(id: string, rating: number) {
+        return this.farmaciaModel.findByIdAndUpdate(id, { rating }, { new: true });
+      }
+    
+       // Método para agregar un comentario a un hospital
+       async addComment(id: string, comentario: string, usuario: string): Promise<Farmacia> {
+        // Aquí estamos usando el operador $push para agregar un comentario al array de comentarios
+        return this.farmaciaModel.findByIdAndUpdate(
+          id,
+          { $push: { comentarios: { usuario, texto: comentario } } },
+          { new: true }
+        ).exec();
+      }
+      
+    
 }

@@ -49,6 +49,19 @@ export class Farmacia {
     telefono_responsable: string;
     password: string;
   };
+
+    // 📝 Campo para los comentarios de los usuarios
+    @Prop({
+      type: [
+        {
+          usuario: { type: String, required: true },  // Nombre del usuario que publicó el comentario
+          texto: { type: String, required: true },    // Texto del comentario
+          fecha: { type: Date, default: Date.now }    // Fecha en la que se publicó el comentario
+        }
+      ],
+      default: [],
+    })
+    comentarios: { usuario: string, texto: string, fecha: Date }[]; // Array de comentarios
   /* @Prop({ required: true, default: 'farmacia' })
   role: string;*/
     // 📌 Campo para la URL de la imagen

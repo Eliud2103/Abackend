@@ -16,8 +16,8 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Entidad.name) private entidadModel: Model<EntidadDocument>,
-    private readonly hospitalService: HospitalService ,
-    private readonly farmaciaService: FarmaciaService// Inyectamos el servicio de hospitales
+    private readonly hospitalService: HospitalService,
+    private readonly farmaciaService: FarmaciaService
   ) {}
 
   // Registro de usuario
@@ -84,28 +84,15 @@ export class AuthService {
     return { accessToken, role: user.role, fullName: user.fullName, email: user.email };
   }
   
-  
-
   // Método para registrar hospital
   async registerHospital(hospitalDto: RegisterHospitalDto): Promise<any> {
     return this.hospitalService.registerHospital(hospitalDto);
   }
+
+  // Método para registrar farmacia
   async registerFarmacia(farmaciaDto: RegisterFarmaciaDto): Promise<any> {
-  
     return this.farmaciaService.registerFarmacia(farmaciaDto);
-   
-    // Verificar si el correo de la farmacia ya está en uso
-   /* const { email_responsable } = farmaciaDto;
-    const existingFarmacia = await this.entidadModel.findOne({ email_responsable });
-    if (existingFarmacia) {
-      throw new ConflictException('El correo electrónico ya está en uso.');
-    }
-
-    // Crear una nueva farmacia
-    const newFarmacia = new this.entidadModel(farmaciaDto);
-    return await newFarmacia.save();*/
   }
-
 
   // Método para actualizar la contraseña
   async updatePassword(userId: string, currentPassword: string, newPassword: string): Promise<{ message: string }> {
