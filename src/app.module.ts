@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { HospitalModule } from './auth/hospital.module';
 import { FarmaciaModule } from './auth/farmacia.module';
+import { PublicacionesModule } from './auth/publicaciones.module';
 import { ServeStaticModule } from '@nestjs/serve-static'; // Importar ServeStaticModule
 import { join } from 'path'; // Para obtener la ruta correcta de los archivos
 
@@ -15,6 +16,7 @@ import { join } from 'path'; // Para obtener la ruta correcta de los archivos
     AuthModule,
     HospitalModule,
     FarmaciaModule,
+    PublicacionesModule,
 
     // Configuración para servir archivos estáticos
     ServeStaticModule.forRoot({
