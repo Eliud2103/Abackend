@@ -37,4 +37,8 @@ export class PublicacionesController {
   async obtenerPublicaciones() {
     return this.publicacionesService.obtenerTodas();  // Llama al servicio para obtener todas las publicaciones
   }
+  @Get(':id')
+  async obtenerPublicacionPorId(@Param('id') id: string) {
+    return this.publicacionesService.obtenerPorId(id);
+  }
 }

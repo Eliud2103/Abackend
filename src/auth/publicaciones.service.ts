@@ -63,4 +63,14 @@ export class PublicacionesService {
   getMongoDbConnection(): Connection {
     return this.connection;
   }
+  async obtenerPorId(id: string): Promise<Publicacion | null> {
+    try {
+      const objectId = new ObjectId(id);  // Convertir a ObjectId
+      return await this.publicacionModel.findOne({ _id: objectId }).exec();
+    } catch (error) {
+      console.error('Error al obtener la publicación:', error);
+      throw new InternalServerErrorException(`Hubo un error al obtener la publicación: ${error.message}`);
+    }
+  }
+  
 }
