@@ -3,6 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { Publicacion, PublicacionSchema } from './schemas/publicacion-far.schema'; // Asegúrate de importar el esquema correcto
 import { GridFSBucket, ObjectId } from 'mongodb';
+import { CreatePublicacionDto } from './dto/create-publicacion-far.dto';
 
 @Injectable()
 export class PublicacionesFarmaciaService {
@@ -33,13 +34,12 @@ export class PublicacionesFarmaciaService {
   }
 
   // ✅ Crear una nueva publicación para farmacia
-  async crearPublicacion(publicacionDto: any): Promise<Publicacion> {
+  async crearPublicacion(publicacionDto: CreatePublicacionDto): Promise<Publicacion> {
     try {
       // Asegúrate de que el DTO contenga la imagen
       if (!publicacionDto.img) {
         throw new InternalServerErrorException('La publicación debe tener una imagen.');
       }
-      
       const nuevaPublicacion = new this.publicacionFarmaciaModel(publicacionDto);
       return await nuevaPublicacion.save();  // Guarda la nueva publicación
     } catch (error) {

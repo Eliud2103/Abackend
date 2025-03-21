@@ -29,10 +29,12 @@ export class PublicacionesFarmaciaController {
     const downloadStream = bucket.openDownloadStream(new ObjectId(fileId));
     downloadStream.pipe(res);
   }
-   @Post()
-    async crearPublicacion(@Body() publicacionDto: any) {
-      return this.publicacionesFarmaciaService.crearPublicacion(publicacionDto);
-    }
+  @Post()
+  async crearPublicacion(@Body() publicacionDto: any) {
+    publicacionDto.categoria = 'farmacia';  // 👈 Forzar que todas las publicaciones sean de farmacia
+    return this.publicacionesFarmaciaService.crearPublicacion(publicacionDto);
+  }
+  
     @Get()
     async obtenerPublicaciones() {
       return this.publicacionesFarmaciaService.obtenerTodas();  // Llama al servicio para obtener todas las publicaciones

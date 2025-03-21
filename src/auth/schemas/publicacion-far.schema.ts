@@ -16,8 +16,7 @@ export class Publicacion extends Document {
   @Prop({ required: true })
   img: string; // Puedes hacer validación con @IsUrl() en el DTO si es necesario
 
-  @Prop({ required: true, default: 'farmacia' }) // 👈 Esto marca la categoría
-  categoria: string;
+
 }
 
 export const PublicacionSchema = SchemaFactory.createForClass(Publicacion);

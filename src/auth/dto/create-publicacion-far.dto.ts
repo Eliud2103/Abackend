@@ -16,4 +16,6 @@ export class CreatePublicacionDto {
   @IsUrl()
   @IsNotEmpty()
   img: string; // Validación de URL
+
+
 }
