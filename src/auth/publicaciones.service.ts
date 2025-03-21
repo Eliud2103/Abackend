@@ -72,5 +72,57 @@ export class PublicacionesService {
       throw new InternalServerErrorException(`Hubo un error al obtener la publicación: ${error.message}`);
     }
   }
+  // ✅ Método para eliminar una publicación
+  // Método para eliminar una publicación
+   // Método para eliminar una publicación
+   // ✅ Método para eliminar una publicación
+   async eliminarPublicacion(id: string): Promise<void> {
+    try {
+      console.log('ID recibido:', id);
+  
+      if (!ObjectId.isValid(id)) {
+        throw new InternalServerErrorException('ID de publicación no válido');
+      }
+  
+      const objectId = new ObjectId(id);  // Convertir el ID a ObjectId
+      console.log('ObjectId convertido:', objectId);
+  
+      const publicacion = await this.publicacionModel.findOne({ _id: objectId }).exec();
+      if (!publicacion) {
+        throw new InternalServerErrorException('Publicación no encontrada');
+      }
+  
+      // Si la publicación tiene una URL de imagen, la eliminamos de GridFS
+      if (publicacion.img) {
+        // Extraer el fileId de la URL de la imagen (suponemos que está en formato http://localhost:3000/publicaciones/imagen/{fileId})
+        const urlParts = publicacion.img.split('/');
+        const fileId = urlParts[urlParts.length - 1]; // Obtener el último segmento de la URL
+  
+        // Verificar si el fileId es válido
+        if (ObjectId.isValid(fileId)) {
+          await this.eliminarImagenDeGridFS(new ObjectId(fileId)); // Eliminar la imagen de GridFS
+        } else {
+          console.log('El fileId extraído no es válido:', fileId);
+        }
+      }
+  
+      // Eliminar la publicación de la base de datos
+      await this.publicacionModel.deleteOne({ _id: objectId }).exec();
+    } catch (error) {
+      console.error('Error al eliminar publicación:', error);
+      throw new InternalServerErrorException(`Hubo un error al eliminar la publicación: ${error.message}`);
+    }
+  }
+  
+
+
+  // Método para eliminar la imagen de GridFS
+  private async eliminarImagenDeGridFS(fileId: ObjectId): Promise<void> {
+    try {
+      await this.bucket.delete(fileId, { timeoutMS: 3000 });
+    } catch (err) {
+      throw new InternalServerErrorException(`Error al eliminar la imagen: ${(err as Error).message}`);
+    }
+  }
   
 }

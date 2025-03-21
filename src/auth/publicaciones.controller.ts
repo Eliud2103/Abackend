@@ -1,4 +1,4 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Param, Get, Res, Body } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, Param, Get, Res, Body, Delete } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PublicacionesService } from './publicaciones.service';
 import { Response } from 'express';
@@ -41,4 +41,11 @@ export class PublicacionesController {
   async obtenerPublicacionPorId(@Param('id') id: string) {
     return this.publicacionesService.obtenerPorId(id);
   }
+   // ✅ Eliminar una publicación por ID
+ 
+   @Delete(':id')
+async eliminarPublicacion(@Param('id') id: string) {
+  console.log('ID recibido:', id);  // Esto imprimirá el ID recibido en la consola
+  return this.publicacionesService.eliminarPublicacion(id);  // Llama al servicio para eliminar la publicación
+}
 }
