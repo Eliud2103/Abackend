@@ -50,7 +50,7 @@ export class PublicacionesFarmaciaService {
 
   async obtenerTodas(): Promise<PublicacionFarmacia[]> {
     try {
-      return await this.publicacionFarmaciaModel.find({ categoria: 'farmacia' }).exec();  // Filtra solo farmacias
+      return await this.publicacionFarmaciaModel.find().exec();  // Filtra solo farmacias
     } catch (error) {
       console.error('Error al obtener publicaciones de farmacia:', error);
       throw new InternalServerErrorException(`Hubo un error al obtener las publicaciones de farmacia: ${error.message}`);
