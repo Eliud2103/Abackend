@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 @Schema({ collection: 'noticias_farmacia' })
-export class Publicacion extends Document {
+export class PublicacionFarmacia extends Document {
   @Prop({ required: true })
   titulo: string;
 
@@ -19,4 +19,5 @@ export class Publicacion extends Document {
 
 }
 
-export const PublicacionSchema = SchemaFactory.createForClass(Publicacion);
+export const PublicacionSchema = SchemaFactory.createForClass(PublicacionFarmacia);
+PublicacionSchema.set('collection', 'noticias_farmacia');

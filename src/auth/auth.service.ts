@@ -40,49 +40,50 @@ export class AuthService {
 
   // Iniciar sesión
   async login(email: string, password: string): Promise<{ accessToken: string; role: string; fullName: string; email: string }> {
-    // Buscar primero en la colección de usuarios normales
     let user = await this.userModel.findOne({ email });
-  
+
     if (!user) {
-      // Si no lo encuentra en usuarios, buscar en hospitales
-      const hospital = await this.hospitalService.findHospitalByEmail(email);
-      if (hospital) {
-        user = new this.userModel({
-          email: hospital.responsable.email_responsable,
-          fullName: `${hospital.responsable.nombre_responsable} ${hospital.responsable.apellido_paterno_responsable}`,
-          role: 'hospital',
-          password: hospital.responsable.password,
-        });
-      } else {
-        // Si tampoco lo encuentra en hospitales, buscar en farmacias
+        let role = '';
+        let fullName = '';
+        let hashedPassword = '';
+
+        // Buscar en hospitales
+        const hospital = await this.hospitalService.findHospitalByEmail(email);
+        if (hospital) {
+            role = 'hospital';
+            fullName = `${hospital.responsable.nombre_responsable} ${hospital.responsable.apellido_paterno_responsable}`;
+            hashedPassword = hospital.responsable.password; // Asegúrate de que está encriptado en la BD
+        }
+
+        // Buscar en farmacias
         const farmacia = await this.farmaciaService.findFarmaciaByEmail(email);
         if (farmacia) {
-          user = new this.userModel({
-            email: farmacia.responsable.email_responsable,
-            fullName: `${farmacia.responsable.nombre_responsable} ${farmacia.responsable.apellido_paterno_responsable}`,
-            role: 'farmacia',
-            password: farmacia.responsable.password,
-          });
+            role = 'farmacia';
+            fullName = `${farmacia.responsable.nombre_responsable} ${farmacia.responsable.apellido_paterno_responsable}`;
+            hashedPassword = farmacia.responsable.password; // Asegúrate de que está encriptado en la BD
         }
-      }
+
+        if (!role) {
+            throw new UnauthorizedException('Credenciales incorrectas');
+        }
+
+        // Crear un objeto de usuario simulado
+        user = { email, fullName, role, password: hashedPassword } as any;
     }
-  
-    if (!user) {
-      throw new UnauthorizedException('Credenciales incorrectas');
-    }
-  
+
     // Verificar la contraseña
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+        throw new UnauthorizedException('Credenciales incorrectas');
     }
-  
+
     // Generar el token JWT
     const payload = { fullName: user.fullName, email: user.email, role: user.role };
     const accessToken = jwt.sign(payload, 'secreto', { expiresIn: '1h' });
-  
+
     return { accessToken, role: user.role, fullName: user.fullName, email: user.email };
-  }
+}
+
   
   // Método para registrar hospital
   async registerHospital(hospitalDto: RegisterHospitalDto): Promise<any> {

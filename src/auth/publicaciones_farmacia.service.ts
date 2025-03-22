@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { Publicacion, PublicacionSchema } from './schemas/publicacion-far.schema'; // Asegúrate de importar el esquema correcto
+import { PublicacionFarmacia, PublicacionSchema } from './schemas/publicacion-far.schema'; // Asegúrate de importar el esquema correcto
 import { GridFSBucket, ObjectId } from 'mongodb';
 import { CreatePublicacionDto } from './dto/create-publicacion-far.dto';
 
@@ -10,7 +10,7 @@ export class PublicacionesFarmaciaService {
   private bucket: GridFSBucket;
 
   constructor(
-    @InjectModel(Publicacion.name) private readonly publicacionFarmaciaModel: Model<Publicacion>,
+    @InjectModel(PublicacionFarmacia.name) private publicacionFarmaciaModel: Model<PublicacionFarmacia>,
 
     @InjectConnection() private connection: Connection, // Inyectamos la conexión a MongoDB
   ) {
@@ -34,7 +34,7 @@ export class PublicacionesFarmaciaService {
   }
 
   // ✅ Crear una nueva publicación para farmacia
-  async crearPublicacion(publicacionDto: CreatePublicacionDto): Promise<Publicacion> {
+  async crearPublicacion(publicacionDto: CreatePublicacionDto): Promise<PublicacionFarmacia> {
     try {
       // Asegúrate de que el DTO contenga la imagen
       if (!publicacionDto.img) {
@@ -48,7 +48,7 @@ export class PublicacionesFarmaciaService {
     }
   }
 
-  async obtenerTodas(): Promise<Publicacion[]> {
+  async obtenerTodas(): Promise<PublicacionFarmacia[]> {
     try {
       return await this.publicacionFarmaciaModel.find({ categoria: 'farmacia' }).exec();  // Filtra solo farmacias
     } catch (error) {
@@ -58,7 +58,7 @@ export class PublicacionesFarmaciaService {
   }
   
   // ✅ Obtener una publicación de farmacia por ID
-  async obtenerPorId(id: string): Promise<Publicacion | null> {
+  async obtenerPorId(id: string): Promise<PublicacionFarmacia | null> {
     try {
       const objectId = new ObjectId(id);  // Convertir a ObjectId
       const publicacion = await this.publicacionFarmaciaModel.findOne({ _id: objectId }).exec();  // Buscamos por ID convertido a ObjectId
