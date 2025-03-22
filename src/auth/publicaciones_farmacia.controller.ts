@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res, HttpStatus, Post, UseInterceptors, UploadedFile, Body } from '@nestjs/common';
+import { Controller, Get, Param, Res, HttpStatus, Post, UseInterceptors, UploadedFile, Body, Delete } from '@nestjs/common';
 import { Response } from 'express';
 import { GridFSBucket, ObjectId } from 'mongodb';
 import { PublicacionesFarmaciaService } from './publicaciones_farmacia.service';
@@ -42,6 +42,12 @@ export class PublicacionesFarmaciaController {
     @Get(':id')
     async obtenerPublicacionPorId(@Param('id') id: string) {
       return this.publicacionesFarmaciaService.obtenerPorId(id);
+    }
+
+       @Delete(':id')
+    async eliminarPublicacion(@Param('id') id: string) {
+      console.log('ID recibido:', id);  // Esto imprimirá el ID recibido en la consola
+      return this.publicacionesFarmaciaService.eliminarPublicacion(id);  // Llama al servicio para eliminar la publicación
     }
 
 }

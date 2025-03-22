@@ -14,7 +14,7 @@ export class PublicacionesService {
   constructor(
     @InjectModel(Publicacion.name) private publicacionModel: Model<Publicacion>,
     @InjectConnection() private connection: Connection, // 🔹 Inyectamos la conexión a MongoDB
-  ) {
+  ) { 
     this.bucket = new GridFSBucket(this.connection.db, { bucketName: 'uploads' });
   }
 
