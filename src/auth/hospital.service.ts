@@ -88,5 +88,15 @@ export class HospitalService {
       { new: true }
     ).exec();
   }
+// HospitalService
+async buscarPorTipo(tipo: string): Promise<Hospital[]> {
+  return this.hospitalModel.find({ tipo_hospital: tipo }).exec();  // Buscar por tipo_hospital
+}
+// Servicio en NestJS
+async findByTipoHospital(tipo: string) {
+  return this.hospitalModel.find({ tipo_hospital: tipo });
+}
+
+  
   
 }
