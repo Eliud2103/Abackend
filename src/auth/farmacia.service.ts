@@ -82,6 +82,8 @@ export class FarmaciaService {
           { new: true }
         ).exec();
       }
-      
+      async findByTipoFarmacia(tipo: string) {
+        return this.farmaciaModel.find({ tipo_farmacia: tipo });
+      }
     
 }

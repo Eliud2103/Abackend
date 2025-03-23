@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Query } from '@nestjs/common';
 import { FarmaciaService } from './farmacia.service';
 import { RegisterFarmaciaDto } from './dto/register-farmacia.dto';
 import { Farmacia } from './schemas/farmacia.schema';
@@ -15,6 +15,17 @@ export class FarmaciaController {
     async getFarmacias(): Promise<Farmacia[]> {
       return this.farmaciaService.findAll(); // Asegúrate de que esta función existe en el servicio
     }
+
+      @Get('buscar')
+      async buscarHospital(@Query('tipo') tipo: string) {
+        // Verifica que el tipo esté presente
+        if (!tipo) {
+          throw new Error('El parámetro tipo es obligatorio.');
+        }
+      
+        // Llama al servicio para realizar la búsqueda
+        return this.farmaciaService.findByTipoFarmacia(tipo);
+      }
      @Get(':id')  // Ruta para obtener hospital por id
       async getHospitalDetails(@Param('id') id: string): Promise<Farmacia> {
         return this.farmaciaService.findOne(id);
