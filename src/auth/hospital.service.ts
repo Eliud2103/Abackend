@@ -1,21 +1,35 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Injectable, InternalServerErrorException, Logger, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { RegisterHospitalDto } from './dto/register-hospital.dto';
 import { Hospital } from './schemas/hospital.schema';  // Importamos el esquema de Hospital que ya incluye Responsable
 import * as bcrypt from 'bcrypt';
+import { GridFSBucket } from 'mongodb';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 const logger = new Logger('HospitalService'); // Logger de NestJS
 
 @Injectable()
 export class HospitalService {
+    private bucket: GridFSBucket;
   constructor(
-    @InjectModel(Hospital.name) private readonly hospitalModel: Model<Hospital> // Solo inyectamos el modelo de Hospital
-  ) {}
+    @InjectModel(Hospital.name) private readonly hospitalModel: Model<Hospital> ,
+    @InjectConnection() private connection: Connection
+    // Solo inyectamos el modelo de Hospital
+  ) {
+    this.bucket = new GridFSBucket(this.connection.db, { bucketName: 'uploads' });
+  }
+
+  
   async findHospitalByEmail(email: string): Promise<Hospital | null> {
     return this.hospitalModel.findOne({ "responsable.email_responsable": email }).exec();
   }
   
+  // ✅ Método para obtener la conexión a MongoDB
+  getMongoDbConnection(): Connection {
+    return this.connection;
+  }
+
 
   async registerHospital(hospitalDto: RegisterHospitalDto): Promise<Hospital> {
     try {
@@ -96,6 +110,25 @@ async buscarPorTipo(tipo: string): Promise<Hospital[]> {
 async findByTipoHospital(tipo: string) {
   return this.hospitalModel.find({ tipo_hospital: tipo });
 }
+
+async subirImagen(file: Express.Multer.File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!file) {
+        return reject(new Error('No se ha subido una imagen'));
+      }
+
+      const uploadStream = this.bucket.openUploadStream(file.originalname);
+      uploadStream.end(file.buffer); // 🔹 Subimos el archivo
+
+      uploadStream.on('finish', () => {
+        resolve(uploadStream.id.toString()); // Retornamos el ID de la imagen
+      });
+
+      uploadStream.on('error', (error) => {
+        reject(new InternalServerErrorException(`Error al subir la imagen: ${error.message}`));
+      });
+    });
+  }
 
   
   

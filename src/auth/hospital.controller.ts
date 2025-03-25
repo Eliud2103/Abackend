@@ -1,11 +1,41 @@
-import { Controller, Post, Body, Get, Param, Patch, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Query, NotFoundException, Res, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { HospitalService } from '../auth/hospital.service';
 import { RegisterHospitalDto } from './dto/register-hospital.dto';
 import { Hospital } from './schemas/hospital.schema';
+import { ObjectId, GridFSBucket } from 'mongodb';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('hospital')
 export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) {}
+
+
+
+  // ✅ Subir imagen a GridFS y devolver la URL
+  @Post('subir-imagen')
+  @UseInterceptors(FileInterceptor('file'))
+  async subirImagen(@UploadedFile() file: Express.Multer.File) {
+    const fileId = await this.hospitalService.subirImagen(file);
+    const imgUrl = `http://localhost:3000/hospitales/imagen/${fileId}`;
+    return { url: imgUrl };
+  }
+
+
+
+  @Get('imagen/:fileId')
+  async getImage(@Param('fileId') fileId: string, @Res() res: Response) {
+    try {
+      const bucket = new GridFSBucket(this.hospitalService.getMongoDbConnection().db, {
+        bucketName: 'uploads',
+      });
+
+      const downloadStream = bucket.openDownloadStream(new ObjectId(fileId));
+      downloadStream.pipe(res as any);
+    } catch (error) {
+      throw new NotFoundException('Imagen no encontrada');
+    }
+  }
+
 
   @Post('register')
   async registerHospital(@Body() registerHospitalDto: RegisterHospitalDto): Promise<Hospital> {

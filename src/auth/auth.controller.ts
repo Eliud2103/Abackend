@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Req, UnauthorizedException, Put, ConflictException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Req, UnauthorizedException, Put, ConflictException, UploadedFile, UseInterceptors, NotFoundException, Param, Res } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { User } from './schemas/user.schema';
 import { AuthService } from './auth.service';
@@ -11,6 +11,7 @@ import { RegisterHospitalDto } from './dto/register-hospital.dto';
 import { RegisterFarmaciaDto } from './dto/register-farmacia.dto';
 import { FileInterceptor } from '@nestjs/platform-express'; // Importar el interceptor de archivos
 import { GridFSService } from '../auth/gridfs.service'; // Asegúrate de tener el servicio de GridFS
+import { Response } from 'express'; // ✅ Importar correctamente
 
 
 @Controller('auth')
@@ -85,15 +86,22 @@ export class AuthController {
   //////////////////////////// Subida de imagen ///////////////////////////
 
   @Post('images/upload')
-  @UseInterceptors(FileInterceptor('image'))  // Asegúrate de que el campo se llama 'image'
+  @UseInterceptors(FileInterceptor('image'))  
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
-    // Subir archivo a GridFS y obtener URL
-    const imageUrl = await this.gridFsService.uploadFile(file);
-    
-    // Devuelves solo la URL como un string
-    return { imageUrl: imageUrl };  // Asegúrate de que solo sea un string
+    const fileId = await this.gridFsService.uploadFile(file);
+    return { fileId }; // Devolver el ID en lugar de una URL
   }
-  
 
+  @Get('images/:fileId')
+  async getImage(@Param('fileId') fileId: string, @Res() res: Response) {
+    try {
+      const { stream, contentType } = await this.gridFsService.getFile(fileId);
+
+      res.set('Content-Type', contentType);
+      stream.pipe(res);
+    } catch (error) {
+      throw new NotFoundException('Imagen no encontrada');
+    }
+  }
   
 }
