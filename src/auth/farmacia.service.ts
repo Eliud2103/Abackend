@@ -1,21 +1,32 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { RegisterFarmaciaDto } from '../auth/dto/register-farmacia.dto';
 import { Farmacia } from './schemas/farmacia.schema';
+import { GridFSBucket } from 'mongodb';
 import * as bcrypt from 'bcrypt';
 
 const logger = new Logger('FarmaciaService'); // Logger de NestJS
 
 @Injectable()
 export class FarmaciaService {
+  private bucket: GridFSBucket;
   constructor(
-    @InjectModel(Farmacia.name) private readonly farmaciaModel: Model<Farmacia>
-  ) {}
+    @InjectModel(Farmacia.name) private readonly farmaciaModel: Model<Farmacia>,
+     @InjectConnection() private connection: Connection
+  ) {
+    this.bucket = new GridFSBucket(this.connection.db, { bucketName: 'uploads' });
+  }
 
   async findFarmaciaByEmail(email: string): Promise<Farmacia | null> {
     return this.farmaciaModel.findOne({ 'responsable.email_responsable': email }).exec();
   }
+
+
+  getMongoDbConnection(): Connection {
+    return this.connection;
+  }
+
 
   async registerFarmacia(farmaciaDto: RegisterFarmaciaDto): Promise<Farmacia> {
     try {
@@ -58,6 +69,10 @@ export class FarmaciaService {
     const salt = await bcrypt.genSalt();
     return bcrypt.hash(password, salt);
   }
+
+  async getFarmacias() {
+    return await this.farmaciaModel.find().exec();
+  }
   async findAll(): Promise<Farmacia[]> {
       return this.farmaciaModel.find().exec();
     }
@@ -85,5 +100,22 @@ export class FarmaciaService {
       async findByTipoFarmacia(tipo: string) {
         return this.farmaciaModel.find({ tipo_farmacia: tipo });
       }
+    async subirImagen(file: Express.Multer.File): Promise<string> {
+        return new Promise((resolve, reject) => {
+          if (!file) {
+            return reject(new Error('No se ha subido una imagen'));
+          }
     
+          const uploadStream = this.bucket.openUploadStream(file.originalname);
+          uploadStream.end(file.buffer); // 🔹 Subimos el archivo
+    
+          uploadStream.on('finish', () => {
+            resolve(uploadStream.id.toString()); // Retornamos el ID de la imagen
+          });
+    
+          uploadStream.on('error', (error) => {
+            reject(new InternalServerErrorException(`Error al subir la imagen: ${error.message}`));
+          });
+        });
+      }
 }
