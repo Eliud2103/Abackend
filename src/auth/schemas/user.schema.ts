@@ -25,7 +25,7 @@ export class User {
   @Prop({ default: Date.now })
   passwordChangedAt: Date; 
 
-  @Prop({ required: true, enum: ['usuario', 'hospital', 'clinica', 'farmacia', 'laboratorio', 'doctor'] })
+  @Prop({ required: true, enum: ['usuario', 'hospital', 'clinica', 'farmacia', 'laboratorio', 'doctor','admin'] })
   role: string; // Define qué tipo de usuario es
 }
 
