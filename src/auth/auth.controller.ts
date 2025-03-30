@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, UseGuards, Req, UnauthorizedException, Put, ConflictException, UploadedFile, UseInterceptors, NotFoundException, Param, Res } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
+import { adminDto } from './dto/admin.dto';
 import { User } from './schemas/user.schema';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -24,6 +25,11 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<User> {
     return this.authService.register(registerDto);
+  }
+
+  @Post('adminRegister')
+  async adminRegister(@Body() adminDto: adminDto): Promise<User> {
+    return this.authService.adminRegister(adminDto);
   }
 
   @Post('login')

@@ -7,6 +7,7 @@ import { HospitalModule } from './auth/hospital.module';
 import { FarmaciaModule } from './auth/farmacia.module';
 import { PublicacionesModule } from './auth/publicaciones.module';
 import { PublicacionesFarmaciaModule  } from './auth/publicaciones_farmacia.module';
+
 import { ServeStaticModule } from '@nestjs/serve-static'; // Importar ServeStaticModule
 import { join } from 'path'; // Para obtener la ruta correcta de los archivos
 

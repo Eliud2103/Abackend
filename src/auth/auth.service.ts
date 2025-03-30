@@ -6,10 +6,13 @@ import * as jwt from 'jsonwebtoken';
 import { User, UserDocument } from './schemas/user.schema';
 import { Entidad, EntidadDocument } from './schemas/entidad.schema';
 import { RegisterDto } from './dto/register.dto';
+import { adminDto } from './dto/admin.dto';
 import { HospitalService } from './hospital.service'; // Importamos el servicio de hospitales
 import { FarmaciaService } from './farmacia.service'; // Importamos el servicio de farmacias
 import { RegisterHospitalDto } from './dto/register-hospital.dto';
 import { RegisterFarmaciaDto } from './dto/register-farmacia.dto';
+import { Types } from 'mongoose';  // Asegúrate de que esto esté presente
+
 
 @Injectable()
 export class AuthService {
@@ -17,7 +20,7 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Entidad.name) private entidadModel: Model<EntidadDocument>,
     private readonly hospitalService: HospitalService,
-    private readonly farmaciaService: FarmaciaService
+    private readonly farmaciaService: FarmaciaService,
   ) {}
 
   // Registro de usuario
@@ -37,6 +40,32 @@ export class AuthService {
     const user = new this.userModel({ ...registerDto, password: hashedPassword });
     return user.save();
   }
+
+
+
+  async adminRegister(adminDto: adminDto): Promise<User> {
+    console.log('Datos recibidos en adminRegister:', adminDto);
+    const { email, password } = adminDto;
+
+     // Verificar si el usuario ya existe
+     const existingUser = await this.userModel.findOne({ email });
+     if (existingUser) {
+       throw new ConflictException('El correo ya está en uso.');
+     }
+
+      // Hashear la contraseña antes de guardarla
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+       // Guardar el usuario en la base de datos
+       const user = new this.userModel({_id: new Types.ObjectId(), 
+         ...adminDto, password: hashedPassword,
+            role: adminDto.role || 'admin'  });
+       return user.save();
+ 
+
+  }
+  
+  
 
   // Iniciar sesión
   async login(email: string, password: string): Promise<{ accessToken: string; role: string; fullName: string; email: string }> {

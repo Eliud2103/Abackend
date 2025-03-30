@@ -13,7 +13,7 @@ import {GridFSModule} from '../auth/gridfs.module'
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema,collection:'usuarios' }]),
     EntidadModule, // Asegura que el EntidadModel está disponible
     HospitalModule,
     GridFSModule,
