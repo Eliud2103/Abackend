@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Patch, Query, NotFoundException, Res, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Query, NotFoundException, Res, UseInterceptors, UploadedFile, Delete } from '@nestjs/common';
 import { HospitalService } from '../auth/hospital.service';
 import { RegisterHospitalDto } from './dto/register-hospital.dto';
 import { Hospital } from './schemas/hospital.schema';
@@ -9,7 +9,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) {}
 
-
+  // ✅ Eliminar un hospital por ID
+  @Delete(':id')
+  async deleteHospital(@Param('id') id: string): Promise<void> {
+    const result = await this.hospitalService.deleteHospital(id);
+    if (!result) {
+      throw new NotFoundException(`Hospital con ID ${id} no encontrado`);
+    }
+  }
 
   // ✅ Subir imagen a GridFS y devolver la URL
   @Post('subir-imagen')
@@ -74,7 +81,7 @@ export class HospitalController {
   }
 
  
-
+ 
   
 
 }

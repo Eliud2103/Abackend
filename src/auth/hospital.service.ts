@@ -4,7 +4,7 @@ import { Connection, Model } from 'mongoose';
 import { RegisterHospitalDto } from './dto/register-hospital.dto';
 import { Hospital } from './schemas/hospital.schema';  // Importamos el esquema de Hospital que ya incluye Responsable
 import * as bcrypt from 'bcrypt';
-import { GridFSBucket } from 'mongodb';
+import { GridFSBucket, ObjectId } from 'mongodb';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 const logger = new Logger('HospitalService'); // Logger de NestJS
@@ -129,7 +129,10 @@ async subirImagen(file: Express.Multer.File): Promise<string> {
       });
     });
   }
-
+  async deleteHospital(id: string): Promise<boolean> {
+    const result = await this.hospitalModel.deleteOne({ _id: new ObjectId(id) });
+    return result.deletedCount > 0;
+  }
   
   
 }
