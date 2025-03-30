@@ -12,7 +12,7 @@ import { FarmaciaService } from './farmacia.service'; // Importamos el servicio 
 import { RegisterHospitalDto } from './dto/register-hospital.dto';
 import { RegisterFarmaciaDto } from './dto/register-farmacia.dto';
 import { Types } from 'mongoose';  // Asegúrate de que esto esté presente
-
+2
 
 @Injectable()
 export class AuthService {
@@ -37,7 +37,9 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Guardar el usuario en la base de datos
-    const user = new this.userModel({ ...registerDto, password: hashedPassword });
+    const user = new this.userModel({ _id: new Types.ObjectId(),
+      role: registerDto.role || 'user',
+      ...registerDto, password: hashedPassword });
     return user.save();
   }
 
