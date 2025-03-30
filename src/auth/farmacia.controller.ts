@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Param, Query, UseInterceptors, UploadedFile, Res, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Query, UseInterceptors, UploadedFile, Res, NotFoundException, Delete } from '@nestjs/common';
 import { FarmaciaService } from './farmacia.service';
 import { RegisterFarmaciaDto } from './dto/register-farmacia.dto';
 import { Farmacia } from './schemas/farmacia.schema';
@@ -9,6 +9,16 @@ import { GridFSBucket, ObjectId } from 'mongodb';
 export class FarmaciaController {
   constructor(private readonly farmaciaService: FarmaciaService) {}
 
+
+
+  // ✅ Eliminar un hospital por ID
+  @Delete(':id')
+  async deleteHospital(@Param('id') id: string): Promise<void> {
+    const result = await this.farmaciaService.deleteFarmacia(id);
+    if (!result) {
+      throw new NotFoundException(`Hospital con ID ${id} no encontrado`);
+    }
+  }
 
     @Post('subir-imagen')
     @UseInterceptors(FileInterceptor('file'))

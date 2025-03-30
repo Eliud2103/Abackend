@@ -3,7 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { RegisterFarmaciaDto } from '../auth/dto/register-farmacia.dto';
 import { Farmacia } from './schemas/farmacia.schema';
-import { GridFSBucket } from 'mongodb';
+import { GridFSBucket, ObjectId } from 'mongodb';
 import * as bcrypt from 'bcrypt';
 
 const logger = new Logger('FarmaciaService'); // Logger de NestJS
@@ -117,5 +117,11 @@ export class FarmaciaService {
             reject(new InternalServerErrorException(`Error al subir la imagen: ${error.message}`));
           });
         });
+      }
+
+
+      async deleteFarmacia(id: string): Promise<boolean> {
+        const result = await this.farmaciaModel.deleteOne({ _id: new ObjectId(id) });
+        return result.deletedCount > 0;
       }
 }
