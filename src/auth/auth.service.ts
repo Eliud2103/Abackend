@@ -43,7 +43,10 @@ export class AuthService {
     return user.save();
   }
 
-
+  async getUserById(userId: string): Promise<User> {
+    return this.userModel.findById(userId).select('-password'); // Excluir la contraseña
+  }
+  
 
   async adminRegister(adminDto: adminDto): Promise<User> {
     console.log('Datos recibidos en adminRegister:', adminDto);
@@ -70,12 +73,14 @@ export class AuthService {
   
 
   // Iniciar sesión
-  async login(email: string, password: string): Promise<{ accessToken: string; role: string; fullName: string; email: string }> {
+  async login(email: string, password: string): Promise<{ accessToken: string; role: string; lastNameFather: string; lastNameMother: string; fullName: string; email: string }> {
     let user = await this.userModel.findOne({ email });
 
     if (!user) {
         let role = '';
         let fullName = '';
+        let lastNameFather = '';
+        let lastNameMother = '';
         let hashedPassword = '';
 
         // Buscar en hospitales
@@ -83,7 +88,9 @@ export class AuthService {
         if (hospital) {
             role = 'hospital';
             fullName = `${hospital.responsable.nombre_responsable} ${hospital.responsable.apellido_paterno_responsable}`;
-            hashedPassword = hospital.responsable.password; // Asegúrate de que está encriptado en la BD
+            lastNameFather = hospital.responsable.apellido_paterno_responsable;
+            lastNameMother = hospital.responsable.apellido_materno_responsable;
+            hashedPassword = hospital.responsable.password; 
         }
 
         // Buscar en farmacias
@@ -91,7 +98,9 @@ export class AuthService {
         if (farmacia) {
             role = 'farmacia';
             fullName = `${farmacia.responsable.nombre_responsable} ${farmacia.responsable.apellido_paterno_responsable}`;
-            hashedPassword = farmacia.responsable.password; // Asegúrate de que está encriptado en la BD
+            lastNameFather = farmacia.responsable.apellido_paterno_responsable;
+            lastNameMother = farmacia.responsable.apellido_materno_responsable;
+            hashedPassword = farmacia.responsable.password;
         }
 
         if (!role) {
@@ -99,7 +108,7 @@ export class AuthService {
         }
 
         // Crear un objeto de usuario simulado
-        user = { email, fullName, role, password: hashedPassword } as any;
+        user = { email, fullName, lastNameFather, lastNameMother, role, password: hashedPassword } as any;
     }
 
     // Verificar la contraseña
@@ -108,12 +117,37 @@ export class AuthService {
         throw new UnauthorizedException('Credenciales incorrectas');
     }
 
+    // 🔍 LOG antes de generar el token
+    console.log('🔍 Datos antes de generar el token:', {
+        fullName: user.fullName,
+        lastNameFather: user.lastNameFather,
+        lastNameMother: user.lastNameMother,
+        email: user.email,
+        role: user.role
+    });
+
     // Generar el token JWT
-    const payload = { fullName: user.fullName, email: user.email, role: user.role };
+    const payload = { 
+        fullName: user.fullName, 
+        lastNameFather: user.lastNameFather, 
+        lastNameMother: user.lastNameMother, 
+        email: user.email, 
+        role: user.role 
+    };
+
     const accessToken = jwt.sign(payload, 'secreto', { expiresIn: '1h' });
 
-    return { accessToken, role: user.role, fullName: user.fullName, email: user.email };
+    return { 
+        accessToken, 
+        role: user.role, 
+        lastNameFather: user.lastNameFather, 
+        lastNameMother: user.lastNameMother, 
+        fullName: user.fullName, 
+        email: user.email 
+    };
 }
+
+
 
   
   // Método para registrar hospital
@@ -147,3 +181,4 @@ export class AuthService {
     return { message: 'Contraseña actualizada correctamente' };
   }
 }
+  

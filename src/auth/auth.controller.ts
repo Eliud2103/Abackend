@@ -21,7 +21,8 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly gridFsService: GridFSService, // Inyectar el servicio de GridFS
   ) {}
-
+ 
+  
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<User> {
     return this.authService.register(registerDto);
@@ -39,14 +40,36 @@ export class AuthController {
 
   @Get('profile')
   @UseGuards(AuthGuard('jwt'))  // Asegúrate de que el JWT Guard esté activado
-  async getProfile(@Req() req: IRequest) {
+  async  getProfile(@Req() req: IRequest) {
     console.log('User data in backend:', req.user); // Verifica los datos que llegan al backend
     return {
       fullName: req.user.fullName,
+      lastNameFather: req.user.lastNameFather,
+      lastNameMother: req.user.lastNameMother,
       email: req.user.email,
       userId: req.user.userId,
     };
   }
+
+
+
+
+  
+  @Get('my-data')
+  @UseGuards(JwtAuthGuard)  
+  async getMyData(@Req() req: IRequest) {
+    const userId = req.user.userId; // Asegúrate de que 'userId' esté en el token
+    const user = await this.authService.getUserById(userId);
+    
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+  
+    return user;  // Devuelve todos los datos del usuario
+  }
+
+
+  
 
   @UseGuards(JwtAuthGuard) // Usar un guardia para asegurar que el usuario está autenticado
   @Put('change-password')
