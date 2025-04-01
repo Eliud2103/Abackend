@@ -73,7 +73,7 @@ export class AuthService {
   
 
   // Iniciar sesión
-  async login(email: string, password: string): Promise<{ accessToken: string; role: string; lastNameFather: string; lastNameMother: string; fullName: string; email: string }> {
+  async login(email: string, password: string): Promise<{ accessToken: string; role: string; lastNameFather:string; lastNameMother:string;  fullName: string; email: string }> {
     let user = await this.userModel.findOne({ email });
 
     if (!user) {
@@ -88,9 +88,7 @@ export class AuthService {
         if (hospital) {
             role = 'hospital';
             fullName = `${hospital.responsable.nombre_responsable} ${hospital.responsable.apellido_paterno_responsable}`;
-            lastNameFather = hospital.responsable.apellido_paterno_responsable;
-            lastNameMother = hospital.responsable.apellido_materno_responsable;
-            hashedPassword = hospital.responsable.password; 
+            hashedPassword = hospital.responsable.password; // Asegúrate de que está encriptado en la BD
         }
 
         // Buscar en farmacias
@@ -98,9 +96,7 @@ export class AuthService {
         if (farmacia) {
             role = 'farmacia';
             fullName = `${farmacia.responsable.nombre_responsable} ${farmacia.responsable.apellido_paterno_responsable}`;
-            lastNameFather = farmacia.responsable.apellido_paterno_responsable;
-            lastNameMother = farmacia.responsable.apellido_materno_responsable;
-            hashedPassword = farmacia.responsable.password;
+            hashedPassword = farmacia.responsable.password; // Asegúrate de que está encriptado en la BD
         }
 
         if (!role) {
@@ -108,7 +104,8 @@ export class AuthService {
         }
 
         // Crear un objeto de usuario simulado
-        user = { email, fullName, lastNameFather, lastNameMother, role, password: hashedPassword } as any;
+        user = { email, fullName,lastNameFather, lastNameMother, role, password: hashedPassword } as any;
+        
     }
 
     // Verificar la contraseña
@@ -117,37 +114,13 @@ export class AuthService {
         throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    // 🔍 LOG antes de generar el token
-    console.log('🔍 Datos antes de generar el token:', {
-        fullName: user.fullName,
-        lastNameFather: user.lastNameFather,
-        lastNameMother: user.lastNameMother,
-        email: user.email,
-        role: user.role
-    });
-
     // Generar el token JWT
-    const payload = { 
-        fullName: user.fullName, 
-        lastNameFather: user.lastNameFather, 
-        lastNameMother: user.lastNameMother, 
-        email: user.email, 
-        role: user.role 
-    };
-
+    const payload = { fullName: user.fullName, lastNameFather:user.lastNameFather,lastNameMother:user.lastNameMother, email: user.email, role: user.role };
     const accessToken = jwt.sign(payload, 'secreto', { expiresIn: '1h' });
+    
 
-    return { 
-        accessToken, 
-        role: user.role, 
-        lastNameFather: user.lastNameFather, 
-        lastNameMother: user.lastNameMother, 
-        fullName: user.fullName, 
-        email: user.email 
-    };
+    return { accessToken, role: user.role,lastNameFather: user.lastNameFather, lastNameMother:user.lastNameMother, fullName: user.fullName, email: user.email };
 }
-
-
 
   
   // Método para registrar hospital
@@ -164,7 +137,7 @@ export class AuthService {
   async updatePassword(userId: string, currentPassword: string, newPassword: string): Promise<{ message: string }> {
     const user = await this.userModel.findById(userId);
     if (!user) {
-      throw new UnauthorizedException('Usuario no encontrado');
+      throw new UnauthorizedException('Hey y el id', userId);
     }
 
     // Verificar contraseña actual

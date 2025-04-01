@@ -53,6 +53,7 @@ export class HospitalService {
 
       // Creamos el nuevo hospital y asignamos el responsable
       const newHospital = new this.hospitalModel({
+        
         ...hospitalDto,
         responsable, // Asignamos el subdocumento responsable directamente
       });
